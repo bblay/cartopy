@@ -15,12 +15,15 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with cartopy.  If not, see <http://www.gnu.org/licenses/>.
 
+import os.path
+
 from nose.tools import assert_equal, assert_raises
 import numpy as np
 import matplotlib.pyplot as plt
 import shapely.geometry
 
 import cartopy.crs as ccrs
+from cartopy import config
 import cartopy.io.img_tiles as cimgt
 
 from cartopy.tests.mpl import ImageTesting
@@ -105,6 +108,31 @@ def test_image_merge():
     ax.set_global()
     ax.coastlines()
     plt.imshow(img, origin=origin, extent=extent, alpha=0.5)
+    
+
+@ImageTesting(['imhow_warp_pil'])
+def test_imshow_warp_pil():
+    # plot a PIL image involving a projection transformation
+    import PIL.Image
+    fname = os.path.join(config["repo_data_dir"], 'raster', 'natural_earth',
+                         '50-natural-earth-1-downsampled.png')
+    img = PIL.Image.open(fname)
+
+
+
+    # Works
+#    ax = plt.subplot(111, projection=ccrs.PlateCarree())
+
+    # Doesn't work
+    ax = plt.subplot(111, projection=ccrs.Mercator())
+    
+    
+
+    ax.set_extent([-40, 40, 0, 90], ccrs.PlateCarree())
+    ax.imshow(img, origin="upper", transform=ccrs.PlateCarree(),
+              extent=[-180, 180, -90, 90])    
+    ax.coastlines()
+    plt.show()
 
 
 if __name__ == '__main__':

@@ -32,6 +32,7 @@ import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import numpy as np
+import PIL.Image
 import shapely.geometry
 
 from cartopy import config
@@ -718,6 +719,10 @@ class GeoAxes(matplotlib.axes.Axes):
         update_datalim = kwargs.pop('update_datalim', True)
 
         kwargs.setdefault('origin', 'lower')
+        
+        if isinstance(img, PIL.Image.Image):
+            data = np.array(img.getdata(), dtype='f')
+            img = data.reshape((img.size[1], img.size[0], -1)) / 256.0
 
         same_projection = (isinstance(transform, ccrs.Projection) and
                            self.projection == transform)
