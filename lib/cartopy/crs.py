@@ -777,6 +777,82 @@ class LambertCylindrical(_RectangularProjection):
     def threshold(self):
         return 0.5
 
+    
+class LambertConformal(Projection):
+    """
+    A projection system in the Lambert Conformal conic projection.
+
+    """
+    
+    def __init__(self, central_latitude=0.0, central_longitude=0.0,
+                 false_easting=0.0, false_northing=0.0,
+                 secant_latitude_1=None, secant_latitude_2=None,
+                 ellipsoid_major=None, ellipsoid_minor=None):
+        """
+        Args:
+        
+            * central_latitude
+                    The latitude of "unitary scale".
+
+            * central_longitude     
+                    The central longitude.
+
+            * false_easting
+                    X offset from planar origin in metres. Defaults to 0.
+
+            * false_northing
+                    Y offset from planar origin in metres. Defaults to 0.
+
+        Kwargs:
+
+            * secant_latitude_1
+                    First latitude of secant intersection.
+
+            * secant_latitude_2
+                    Second latitude of secant intersection.
+                    
+            * ellipsoid_major
+                    Semi-major radius of elliposid.
+
+            * ellipsoid_minor
+                    Semi-minor radius of elliposid.
+
+        Note:
+            
+            Proj4 uses default secant latitudes of 33 and 45 degrees north.
+            
+        """
+
+        proj4_params = {'proj': 'lcc',
+                        'lat_0': central_latitude, 'lon_0': central_longitude,
+                        'x_0': false_easting, 'y_0': false_northing}
+        if secant_latitude_1:
+            proj4_params['lat_1'] = secant_latitude_1
+        if secant_latitude_2:
+            proj4_params['lat_2'] = secant_latitude_2
+        if ellipsoid_major:
+            proj4_params['a'] = ellipsoid_major
+        if ellipsoid_minor:
+            proj4_params['b'] = ellipsoid_minor
+        super(LambertConformal, self).__init__(proj4_params)
+        self._max = 5e7
+
+    @property
+    def boundary(self):
+        return sgeom.Point(0, 0).buffer(self._max).exterior
+
+    @property
+    def threshold(self):
+        return 1e5
+
+    @property
+    def x_limits(self):
+        return (-self._max, self._max)
+
+    @property
+    def y_limits(self):
+        return (-self._max, self._max)
+
 
 class Miller(_RectangularProjection):
     def __init__(self, central_longitude=0.0):
